@@ -3,13 +3,13 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  reline:
+  win32-yamatanooroti:
     name: >-
-      reline ${{ matrix.os }} ${{ matrix.ruby }}
+      win32-yamatanooroti ${{ matrix.os }} ${{ matrix.ruby }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        os: [ windows-latest ]
         ruby: [ 2.7, 2.6, 2.5 ]
     steps:
       - uses: actions/checkout@v2
@@ -19,93 +19,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
       - name: Install dependencies
         run:  bundle install
-      - name: rake test
-        run:  bundle exec rake test
-
-  readline:
-    name: >-
-      readline ${{ matrix.cfg.ruby }}  ${{ matrix.cfg.os }}
-    runs-on: ${{ matrix.cfg.os }}
-    strategy:
-      matrix:
-        cfg:
-          - { ruby: head , os: ubuntu-latest  }
-          - { ruby: head , os: macos-latest   }
-          - { ruby: mingw, os: windows-latest }
-          - { ruby: mswin, os: windows-latest }
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.cfg.ruby }}
-      - name: Install dependencies
-        run:  bundle install
-      - name: Download test readline
-        run:  ruby download-test_readline.rb
-      - name: rake test
-        run:  bundle exec rake test
-      - name: rake ci-test
-        env:
-          TEST_READLINE_OR_RELINE: Reline
-        run: bundle exec rake ci-test
-
-  irb:
-    name: >-
-      irb ${{ matrix.ruby }}  ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        ruby: [ head ]
-        os: [ ubuntu-latest ]
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-      - name: Install dependencies
-        run:  bundle install
-      - name: Install reline
-        run:  |
-          rake build
-          rake install
-      - name: Download ruby/irb
-        run:  |
-          git clone https://github.com/ruby/irb
-      - name: Setup ruby/irb
-        run:  |
-          cd irb
-          bundle install
-      - name: Run irb test
-        run:  bundle exec rake test
-
-  vterm-yamatanooroti:
-    name: >-
-      vterm-yamatanooroti ${{ matrix.os }} ${{ matrix.ruby }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ ubuntu-latest ]
-        ruby: [ 2.7, 2.6, 2.5 ]
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-      - name: Install dependencies
-        run:  bundle install
-      - name: Install libvterm
-        run: |
-          sudo apt install -y libtool-bin
-          wget http://www.leonerd.org.uk/code/libvterm/libvterm-0.1.3.tar.gz
-          tar xvzf libvterm-0.1.3.tar.gz
-          cd libvterm-0.1.3
-          sed -i -e 's/^PREFIX=.*$/PREFIX=\/usr/g' Makefile
-          make
-          sudo make install
       - name: Install yamatanooroti
-        run:  gem install yamatanooroti vterm
+        run:  gem install yamatanooroti
       - name: rake test_yamatanooroti
-        run:  rake test_yamatanooroti
+        run:  rake test_yamatanooroti --trace
