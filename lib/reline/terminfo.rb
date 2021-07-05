@@ -53,8 +53,13 @@ module Reline::Terminfo
   @setupterm = Fiddle::Function.new(curses_dl['setupterm'], [Fiddle::TYPE_VOIDP, Fiddle::TYPE_INT, Fiddle::TYPE_VOIDP], Fiddle::TYPE_INT)
   #extern 'char *tigetstr(char *capname)'
   @tigetstr = Fiddle::Function.new(curses_dl['tigetstr'], [Fiddle::TYPE_VOIDP], Fiddle::TYPE_VOIDP)
-  #extern 'char *tiparm(const char *str, ...)'
-  @tiparm = Fiddle::Function.new(curses_dl['tiparm'], [Fiddle::TYPE_VOIDP, Fiddle::TYPE_VARIADIC], Fiddle::TYPE_VOIDP)
+  begin
+    #extern 'char *tiparm(const char *str, ...)'
+    @tiparm = Fiddle::Function.new(curses_dl['tiparm'], [Fiddle::TYPE_VOIDP, Fiddle::TYPE_VARIADIC], Fiddle::TYPE_VOIDP)
+  rescue Fiddle::DLError
+    #extern 'char *tparm(const char *str, ...)'
+    @tiparm = Fiddle::Function.new(curses_dl['tparm'], [Fiddle::TYPE_VOIDP, Fiddle::TYPE_VARIADIC], Fiddle::TYPE_VOIDP)
+  end
   # TODO: add int tigetflag(char *capname) and int tigetnum(char *capname)
 
   def self.setupterm(term, fildes)
